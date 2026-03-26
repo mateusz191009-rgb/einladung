@@ -4,12 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einladung zur Lesung</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --env-color: #ffffff;
             --env-border: #e0e0e0;
             --seal-color: #8b0000;
             --gold: #b8860b;
+            /* NEU: Globale Schriftart-Variable */
+            --font-main: 'Montserrat', sans-serif;
+            --weight-light: 300;
+            --weight-normal: 500; /* Etwas dicker für "Bold"-Effekte */
         }
 
         body {
@@ -20,13 +27,23 @@
             min-height: 100vh;
             margin: 0;
             background-color: #f5f5f5;
-            font-family: 'Times New Roman', serif;
+            /* GEÄNDERT: Schriftart von Times New Roman auf Montserrat */
+            font-family: var(--font-main);
+            font-weight: var(--weight-light);
             perspective: 1500px;
         }
 
+        .scale {
+            transition: transform 260ms ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            will-change: transform;
+        }
+
         .wrapper {
-            width: 650px;
-            height: 460px;
+            width: 780px;
+            height: 340px;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,15 +55,17 @@
         /* When flipped+open, shift the whole wrapper down so the card stays visible */
         .wrapper.flipped.open { transform: rotateY(180deg) translateY(20vh); }
 
-        /* Smaller shift for narrow screens so layout stays balanced */
+        /* Smaller shift for narrow screens so layout stays balanced; avoid translateY to prevent seams */
         @media (max-width: 600px) {
-            .wrapper.flipped.open { transform: rotateY(180deg) translateY(6vh); }
+            .wrapper.flipped.open { transform: rotateY(180deg); }
         }
 
         .front, .back {
             position: absolute;
             width: 100%; height: 100%;
             backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow: hidden;
             border-radius: 4px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
@@ -59,31 +78,35 @@
 
         .stamp {
             position: absolute; top: 30px; right: 30px;
-            width: 86px; height: 108px; border: 1px dashed #ccc; 
-            background: linear-gradient(45deg, #eee 25%, transparent 25%);
-            background-size: 6px 6px;
+            width: 86px; height: 108px; overflow: hidden;
+            border-radius: 6px; border: 1px dashed #ccc; background: transparent;
+        }
+        .stamp img {
+            display: block; width: 100%; height: 100%; object-fit: cover;
         }
 
         #guest-name {
-            font-size: 38px;
+            font-size: 30px; /* Leicht verkleinert, da Montserrat breiter läuft */
             font-style: italic;
             color: #333;
             margin-top: 40px;
             border-bottom: 1px solid #eee;
             padding: 0 20px;
             text-align: center;
+            font-weight: var(--weight-light);
         }
 
         .back {
             background-color: var(--env-color);
             transform: rotateY(180deg);
+            overflow: hidden;
         }
 
         .flap {
             position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-left: 325px solid transparent;
-            border-right: 325px solid transparent;
-            border-top: 230px solid var(--env-color);
+            border-left: 390px solid transparent;
+            border-right: 390px solid transparent;
+            border-top: 160px solid var(--env-color);
             transform-origin: top;
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 5;
@@ -93,124 +116,241 @@
 
         .pocket {
             position: absolute; bottom: 0; width: 0; height: 0;
-            border-left: 325px solid #fcfcfc;
-            border-right: 325px solid #fcfcfc;
-            border-bottom: 230px solid #f9f9f9;
-            border-top: 230px solid transparent;
+            border-left: 390px solid #fcfcfc;
+            border-right: 390px solid #fcfcfc;
+            border-bottom: 180px solid #f9f9f9;
+            border-top: 180px solid transparent;
             z-index: 4;
         }
 
         .card {
-            position: absolute; top: 20px; left: 15px; width: 620px; height: 420px;
+            position: absolute; top: 36px; left: 15px; width: 750px; height: 280px;
             background-color: white; z-index: 3;
             transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex; flex-direction: column; padding: 15px 25px;
             box-sizing: border-box; border: 1px solid #eee; overflow-y: auto;
-            text-align: center; font-size: 11.5px; line-height: 1.35;
+            text-align: center; 
+            font-size: 11.5px; 
+            line-height: 1.5; /* Leicht erhöht für bessere Lesbarkeit mit Sans-Serif */
+            font-weight: var(--weight-light);
         }
 
-        .wrapper.open .card { transform: translateY(-100%); z-index: 6; }
+        .wrapper.open .back { overflow: visible; }
+        .wrapper.open .card { transform: translateY(-100%); z-index: 9999; }
 
         /* Responsive adjustments for small screens */
         @media (max-width: 600px) {
             .wrapper {
-                width: 92vw;
-                height: calc(92vw * 0.7077);
-                max-width: 92vw;
+                width: 94vw;
+                height: calc(94vw * 0.62);
+                max-width: 94vw;
             }
 
             .flap {
-                border-left: calc(46vw) solid transparent;
-                border-right: calc(46vw) solid transparent;
-                border-top: calc((92vw * 0.7077) * 0.5) solid var(--env-color);
+                border-left: calc(47vw) solid transparent;
+                border-right: calc(47vw) solid transparent;
+                border-top: calc((94vw * 0.62) * 0.35) solid var(--env-color);
             }
 
             .pocket {
-                border-left: calc(46vw) solid #fcfcfc;
-                border-right: calc(46vw) solid #fcfcfc;
-                border-bottom: calc((92vw * 0.7077) * 0.5) solid #f9f9f9;
-                border-top: calc((92vw * 0.7077) * 0.5) solid transparent;
+                border-left: calc(47vw) solid #fcfcfc;
+                border-right: calc(47vw) solid #fcfcfc;
+                border-bottom: calc((94vw * 0.62) * 0.48) solid #f9f9f9;
+                border-top: calc((94vw * 0.62) * 0.48) solid transparent;
             }
 
             .card {
-                top: 12px; left: 10px; width: calc(92vw - 40px); height: calc((92vw * 0.7077) - 40px);
-                font-size: 13px;
+                top: calc((94vw * 0.62) * 0.53 + 8px);
+                left: 12px; width: calc(94vw - 44px); height: calc((94vw * 0.62) - 56px);
+                font-size: 13px; /* Etwas kleiner als bei Times New Roman */
+                line-height: 1.4;
             }
 
             .stamp { top: 18px; right: 18px; width: 56px; height: 70px; background-size: 5px 5px; }
-            .seal { top: 140px; left: calc(50% - 36px); width: 64px; height: 64px; }
-            #guest-name { font-size: 20px; margin-top: 22px; }
+            .seal { top: 42%; left: 50%; transform: translateX(-50%); width: 72px; height: 72px; }
+            #guest-name { font-size: 18px; margin-top: 22px; }
             .wrapper.flipped { transform: rotateY(180deg); }
         }
 
         .seal {
-            position: absolute; top: 190px; left: 295px; width: 72px; height: 72px;
+            position: absolute; top: 190px; left: 50%; transform: translateX(-50%); width: 30px; height: 30px;
             background: var(--seal-color); border-radius: 50%; z-index: 6;
             display: flex; justify-content: center; align-items: center;
             color: white; font-weight: bold; transition: opacity 0.3s;
+            /* GEÄNDERT: Explizit hier keine Font-Änderung nötig, erbt Montserrat */
         }
 
         .wrapper.open .seal { opacity: 0; }
 
-        #hint-text { margin-top: 30px; color: #888; font-family: sans-serif; font-size: 14px; }
+        #hint-text { 
+            margin-top: 30px; 
+            color: #888; 
+            /* GEÄNDERT: Von sans-serif auf globale Variable */
+            font-family: var(--font-main); 
+            font-size: 14px; 
+            font-weight: var(--weight-light);
+            transition: opacity 0.3s; 
+        }
+
+        /* --- RSVP Section Styles --- */
+        #rsvp-section {
+            display: none;
+            opacity: 0;
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: left;
+            /* GEÄNDERT: Von sans-serif auf globale Variable */
+            font-family: var(--font-main);
+            font-weight: var(--weight-light);
+            transition: opacity 0.5s ease;
+            z-index: 10;
+            width: 360px;
+            max-width: 90vw;
+        }
+        #rsvp-section.visible {
+            opacity: 1;
+        }
+        .rsvp-option {
+            margin: 12px 0;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .rsvp-option input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .rsvp-option input[type="number"] {
+            width: 45px;
+            padding: 4px;
+            margin: 0 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            /* GEÄNDERT: Von sans-serif auf globale Variable */
+            font-family: var(--font-main);
+            font-weight: var(--weight-light);
+        }
+        #rsvp-submit {
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: var(--gold);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            /* GEÄNDERT: Gewichts-Variable nutzen */
+            font-weight: var(--weight-normal); 
+            font-family: var(--font-main);
+            transition: background 0.2s;
+        }
+        #rsvp-submit:hover { background: #9c7209; }
+        #rsvp-submit:disabled { background: #ccc; cursor: not-allowed; }
 
         #admin-panel {
             display: none; margin-top: 50px; padding: 20px; background: white;
             border: 2px solid var(--gold); border-radius: 8px; width: 400px;
-            font-family: sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            /* GEÄNDERT: Von sans-serif auf globale Variable */
+            font-family: var(--font-main); 
+            font-weight: var(--weight-light);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        #admin-panel input { width: 94%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        #admin-panel input { 
+            width: 94%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; 
+            font-family: var(--font-main); font-weight: var(--weight-light);
+        }
         #generated-link { background: #f0f0f0; padding: 10px; font-size: 11px; word-break: break-all; margin: 10px 0; display: none; border-radius: 4px; }
+        
+        /* Focus state: bring card to center and move envelope down */
+        .wrapper.flipped.open.focus { transform: rotateY(180deg) translateY(80vh); }
+        .wrapper.open.focus .card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: min(92vw, 720px);
+            height: auto;
+            max-height: 86vh;
+            transform: translate(-50%, -50%) scale(1.06);
+            z-index: 9999;
+            border-radius: 6px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+            font-size: 14px; /* Im Fokus etwas größer */
+        }
+        @media (max-width: 600px) {
+            .wrapper.flipped.open.focus { transform: rotateY(180deg) translateY(60vh); }
+            .wrapper.open.focus .card { width: calc(96vw); font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="wrapper" id="envelop">
-        <div class="front">
-            <div class="stamp"></div>
-            <div id="guest-name">An meine Gäste</div>
-        </div>
+    <div class="scale" id="scaleWrap">
+        <div class="wrapper" id="envelop">
+            <div class="front">
+                <div class="stamp"><img src="/Lizzy02_Cover.jpg" alt="Stamp"></div>
+                <div id="guest-name">An meine Gäste</div>
+            </div>
 
-        <div class="back">
-            <div class="flap"></div>
-            <div class="seal">L</div>
-            <div class="pocket"></div>
-            <div class="card">
-                <h2 style="color: var(--gold); margin: 0 0 2px 0; font-size: 18px;">Einladung zur Lesung</h2>
-                <h3 style="margin: 0 0 5px 0; font-size: 16px;">„Lizzys Abenteuer“</h3>
-                
-                <p style="margin: 4px 0;">Ein Buch für große und kleine Leute,<br>
-                erdacht und niedergeschrieben von <b>Norbert Hauser</b>.</p>
-                
-                <p style="margin: 4px 0;">Es liest <i>Heidi Hauser-Nagel</i>,<br>
-                musikalisch begleitet von Dr. Fred Prünte.</p>
-                
-                <p style="margin: 4px 0;"><b>Beginn:</b> Freitag, 26.06.2026 um 18:00 Uhr, Einlass 17:30</p>
-                
-                <p style="margin: 4px 0;"><b>Ort:</b> Casa Nelting, Muffendorfer Hauptstraße 27 – 29,<br>53177 Bonn.</p>
-                
-                <p style="margin: 4px 0;">Der Eintritt ist frei.</p>
-                
-                <p style="margin: 4px 0; font-size: 10.5px;">Im Anschluss an die Lesung haben Sie die Möglichkeit, das Buch zum Preis von 18 € zu erwerben. Der Verkaufserlös fließt vollständig an den Freundeskreis Nepalhilfe e.V.</p>
-                
-                <p style="margin: 4px 0;">Wir freuen uns auf Ihr Kommen,<br>Norbert Hauser und Familie</p>
-                
-                <p style="font-size: 10.5px; border-top: 1px solid #eee; padding-top: 5px; margin-top: 5px;">
-                    Bitte melden Sie sich unbedingt mit Personenzahl an unter<br>
-                    <a href="mailto:Lizzy.Abenteuer@gmail.com">Lizzy.Abenteuer@gmail.com</a><br>
-                    <span style="font-size: 9px; color: #777;">Parkmöglichkeiten und Erreichbarkeit mit öffentlichem Nahverkehr, siehe Anreisebeschreibung, PDF Datei.</span>
-                </p>
+            <div class="back">
+                <div class="flap"></div>
+                <div class="seal">L</div>
+                <div class="pocket"></div>
+                <div class="card">
+                    <h2 style="color: var(--gold); margin: 0 0 4px 0; font-size: 18px; font-weight: var(--weight-normal);">Einladung zur Lesung</h2>
+                    <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: var(--weight-normal);">„Lizzys Abenteuer“</h3>
+                    
+                    <p style="margin: 5px 0;">Ein Buch für große und kleine Leute,<br>
+                    erdacht und niedergeschrieben von <b style="font-weight:var(--weight-normal);">Norbert Hauser</b>.</p>
+                    
+                    <p style="margin: 5px 0;">Es liest <i>Heidi Hauser-Nagel</i>,<br>
+                    musikalisch begleitet von Dr. Fred Prünte.</p>
+                    
+                    <p style="margin: 5px 0;"><b style="font-weight:var(--weight-normal);">Beginn:</b> Freitag, 26.06.2026 um 18:00 Uhr, Einlass 17:30</p>
+                    
+                    <p style="margin: 5px 0;"><b style="font-weight:var(--weight-normal);">Ort:</b> Casa Nelting, Muffendorfer Hauptstraße 27 – 29,<br>53177 Bonn.</p>
+                    
+                    <p style="margin: 5px 0;">Der Eintritt ist frei.</p>
+                    
+                    <p style="margin: 5px 0; font-size: 10.5px;">Im Anschluss an die Lesung haben Sie die Möglichkeit, das Buch zum Preis von 18 € zu erwerben. Der Verkaufserlös fließt vollständig an den Freundeskreis Nepalhilfe e.V.</p>
+                    
+                    <p style="margin: 8px 0 5px 0;">Wir freuen uns auf Ihr Kommen,<br>Norbert Hauser und Familie</p>
+                    
+                    <p style="font-size: 10.5px; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+                        Bitte melden Sie sich unbedingt mit Personenzahl an unter<br>
+                        <a href="mailto:Lizzy.Abenteuer@gmail.com" style="color: #333; text-decoration: none; border-bottom: 1px solid #ccc;">Lizzy.Abenteuer@gmail.com</a><br>
+                        <span style="font-size: 9px; color: #777;">Parkmöglichkeiten und Erreichbarkeit mit öffentlichem Nahverkehr, siehe Anreisebeschreibung, PDF Datei.</span>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="hint-text">Tippen zum Öffnen</div>
 
+    <div id="rsvp-section">
+        <h3 style="margin-top:0; color:var(--gold); text-align:center; font-weight:var(--weight-normal);">Rückmeldung</h3>
+        <label class="rsvp-option">
+            <input type="radio" name="rsvp" value="yes" onchange="toggleGuestCount(true)">
+            Ich nehme teil, mit <input type="number" id="guest-count" min="1" max="10" value="1" disabled> Personen
+        </label>
+        <label class="rsvp-option">
+            <input type="radio" name="rsvp" value="no" onchange="toggleGuestCount(false)">
+            Ich nehme nicht teil
+        </label>
+        <button id="rsvp-submit" onclick="sendRSVP()">Antwort direkt senden</button>
+    </div>
+
     <div id="admin-panel">
-        <h3 style="margin:0">Admin: Link-Generator</h3>
+        <h3 style="margin:0; font-weight:var(--weight-normal);">Admin: Link-Generator</h3>
         <input type="text" id="nameInput" placeholder="Name des Gastes..." oninput="generateLink()">
         <div id="generated-link"></div>
-        <button onclick="copyLink()" id="copyBtn" style="display:none; width:100%; padding:10px; background:var(--gold); color:white; border:none; cursor:pointer;">Link kopieren</button>
+        <button onclick="copyLink()" id="copyBtn" style="display:none; width:100%; padding:10px; background:var(--gold); color:white; border:none; border-radius:4px; cursor:pointer; font-family:var(--font-main); font-weight:var(--weight-normal);">Link kopieren</button>
     </div>
 
     <script>
@@ -218,9 +358,10 @@
         const hint = document.getElementById('hint-text');
         const guestDisplay = document.getElementById('guest-name');
         const adminPanel = document.getElementById('admin-panel');
+        const rsvpSection = document.getElementById('rsvp-section');
 
         const urlParams = new URLSearchParams(window.location.search);
-        const nameFromUrl = urlParams.get('name');
+        let nameFromUrl = urlParams.get('name');
         if (nameFromUrl) { guestDisplay.innerText = nameFromUrl; }
 
         if (window.location.hash === '#admin') { adminPanel.style.display = 'block'; }
@@ -229,32 +370,109 @@
         env.addEventListener('click', () => {
             if (isAnimating) return;
             isAnimating = true;
+            
             if (!env.classList.contains('flipped')) {
                 env.classList.add('flipped');
                 hint.style.opacity = "0";
-                setTimeout(() => { env.classList.add('open'); isAnimating = false; hint.innerText = "Tippen zum Schließen"; hint.style.opacity = "1"; }, 1000);
+                
+                setTimeout(() => { 
+                    env.classList.add('open'); 
+                    isAnimating = false; 
+                    hint.innerText = "Tippen zum Schließen"; 
+                    hint.style.opacity = "1"; 
+                    
+                    rsvpSection.style.display = 'block';
+                    setTimeout(() => rsvpSection.classList.add('visible'), 50);
+                }, 1000);
             } else {
                 env.classList.remove('open');
                 hint.style.opacity = "0";
-                setTimeout(() => { env.classList.remove('flipped'); isAnimating = false; hint.innerText = "Tippen zum Öffnen"; hint.style.opacity = "1"; }, 1000);
+                rsvpSection.classList.remove('visible');
+                setTimeout(() => rsvpSection.style.display = 'none', 500);
+
+                setTimeout(() => { 
+                    env.classList.remove('flipped'); 
+                    isAnimating = false; 
+                    hint.innerText = "Tippen zum Öffnen"; 
+                    hint.style.opacity = "1"; 
+                }, 1000);
             }
         });
 
-        function generateLink() {
-            const val = document.getElementById('nameInput').value;
-            const baseUrl = window.location.href.split('?')[0].split('#')[0];
-            const link = baseUrl + "?name=" + encodeURIComponent(val);
-            const display = document.getElementById('generated-link');
-            const btn = document.getElementById('copyBtn');
-            if(val) { display.innerText = link; display.style.display = 'block'; btn.style.display = 'block'; }
-            else { display.style.display = 'none'; btn.style.display = 'none'; }
+        function toggleGuestCount(isAttending) {
+            document.getElementById('guest-count').disabled = !isAttending;
         }
 
-        function copyLink() {
-            const link = document.getElementById('generated-link').innerText;
-            navigator.clipboard.writeText(link);
-            alert("Kopiert!");
+        async function sendRSVP() {
+            const rsvpYes = document.querySelector('input[name="rsvp"][value="yes"]').checked;
+            const rsvpNo = document.querySelector('input[name="rsvp"][value="no"]').checked;
+            const count = document.getElementById('guest-count').value;
+            const guestName = nameFromUrl ? nameFromUrl : "Unbekannter Gast";
+
+            if (!rsvpYes && !rsvpNo) {
+                alert("Bitte wählen Sie zuerst eine Option aus.");
+                return;
+            }
+
+            const submitBtn = document.getElementById('rsvp-submit');
+            submitBtn.innerText = "Wird gesendet...";
+            submitBtn.disabled = true;
+
+            // --- WEB3FORMS KONFIGURATION ---
+            const formData = {
+                access_key: "b440f7ef-d90f-42db-a209-7af785ef47f9", // <--- DEINEN KEY HIER EINSETZEN
+                subject: `RSVP: ${guestName} (${rsvpYes ? 'Zusage' : 'Absage'})`,
+                from_name: "Einladungs-Webseite",
+                name: guestName,
+                teilnahme: rsvpYes ? "Zusage" : "Absage",
+                personenanzahl: rsvpYes ? count : "0",
+                message: `${guestName} hat geantwortet: ${rsvpYes ? 'Ich nehme mit ' + count + ' Personen teil.' : 'Ich nehme leider nicht teil.'}`
+            };
+
+            try {
+                const response = await fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const result = await response.json();
+
+            if (result.success) {
+                rsvpSection.innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <h3 style="color:var(--gold); margin:0; font-weight:var(--weight-normal);">Vielen Dank!</h3>
+                        <p>Deine Antwort wurde direkt an Norbert Hauser gesendet.</p>
+                    </div>`;
+            } else {
+                throw new Error();
+            }
+        } catch (error) {
+            alert("Ein Fehler ist aufgetreten beim Senden über Web3Forms. Bitte überprüfe deinen Access Key oder versuche es später noch einmal.");
+            submitBtn.innerText = "Antwort direkt senden";
+            submitBtn.disabled = false;
         }
-    </script>
+    }
+
+    // Admin Funktionen bleiben gleich
+    function generateLink() {
+        const val = document.getElementById('nameInput').value;
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const link = baseUrl + "?name=" + encodeURIComponent(val);
+        const display = document.getElementById('generated-link');
+        const btn = document.getElementById('copyBtn');
+        if(val) { display.innerText = link; display.style.display = 'block'; btn.style.display = 'block'; }
+        else { display.style.display = 'none'; btn.style.display = 'none'; }
+    }
+
+    function copyLink() {
+        const link = document.getElementById('generated-link').innerText;
+        navigator.clipboard.writeText(link);
+        alert("Link kopiert!");
+    }
+</script>
 </body>
 </html>
