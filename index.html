@@ -286,6 +286,16 @@
             .wrapper.flipped.open.focus { transform: rotateY(180deg) translateY(60vh); }
             .wrapper.open.focus .card { width: calc(96vw); font-size: 13px; }
         }
+
+        @media (max-height: 850px) {
+            .scale { transform: scale(0.85); }
+        }
+        @media (max-height: 750px) {
+            .scale { transform: scale(0.75); }
+        }
+        @media (max-height: 650px) {
+            .scale { transform: scale(0.65); }
+        }
     </style>
 </head>
 <body>
