@@ -286,16 +286,6 @@
             .wrapper.flipped.open.focus { transform: rotateY(180deg) translateY(60vh); }
             .wrapper.open.focus .card { width: calc(96vw); font-size: 13px; }
         }
-
-        @media (max-height: 850px) {
-            .scale { transform: scale(0.85); }
-        }
-        @media (max-height: 750px) {
-            .scale { transform: scale(0.75); }
-        }
-        @media (max-height: 650px) {
-            .scale { transform: scale(0.65); }
-        }
     </style>
 </head>
 <body>
@@ -303,7 +293,7 @@
     <div class="scale" id="scaleWrap">
         <div class="wrapper" id="envelop">
             <div class="front">
-                <div class="stamp"><img src="Lizzy02_Cover.jpg" alt="Stamp"></div>
+                <div class="stamp"><img src="/Lizzy02_Cover.jpg" alt="Stamp"></div>
                 <div id="guest-name">An meine Gäste</div>
             </div>
 
@@ -333,7 +323,7 @@
                     
                     <p style="font-size: 10.5px; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
                         Bitte melden Sie sich unbedingt mit Personenzahl an unter<br>
-                        <a href="mailto:Lizzy.Abenteuer@gmail.com" style="color: #333; text-decoration: none; border-bottom: 1px solid #ccc;">Lizzy.Abenteuer@gmail.com</a><br>
+                        <a href="mailto:Lizzys.Abenteuer@gmail.com" style="color: #333; text-decoration: none; border-bottom: 1px solid #ccc;">Lizzy.Abenteuer@gmail.com</a><br>
                         <span style="font-size: 9px; color: #777;">Parkmöglichkeiten und Erreichbarkeit mit öffentlichem Nahverkehr, siehe Anreisebeschreibung, PDF Datei.</span>
                     </p>
                 </div>
@@ -430,7 +420,7 @@
 
             // --- WEB3FORMS KONFIGURATION ---
             const formData = {
-                access_key: "b440f7ef-d90f-42db-a209-7af785ef47f9", // <--- DEINEN KEY HIER EINSETZEN
+                access_key: "3da6840f-6120-48e7-9632-a4568b856948", // <--- DEINEN KEY HIER EINSETZEN
                 subject: `RSVP: ${guestName} (${rsvpYes ? 'Zusage' : 'Absage'})`,
                 from_name: "Einladungs-Webseite",
                 name: guestName,
